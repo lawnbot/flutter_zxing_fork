@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_beep/flutter_beep.dart';
+//import 'package:flutter_beep/flutter_beep.dart';
 import 'flutter_zxing.dart';
 
 import 'isolate_utils.dart';
@@ -152,9 +152,9 @@ class _ReaderWidgetState extends State<ReaderWidget>
         /// perform inference in separate isolate
         CodeResult result = await inference(isolateData);
         if (result.isValidBool) {
-          if (widget.beep) {
-            FlutterBeep.beep();
-          }
+          // if (widget.beep) {
+          //   FlutterBeep.beep();
+          // }
           widget.onScan(result);
           setState(() {});
           await Future.delayed(const Duration(seconds: 1));
