@@ -49,5 +49,9 @@
 	<string>$(APP_DISPLAY_NAME) needs photo library access to scan barcodes</string>
 	<key>NSCameraUsageDescription</key>
 	<string>$(APP_DISPLAY_NAME) needs camera access to scan barcodes</string>
+	<key>UIStatusBarHidden</key>
+	<false/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

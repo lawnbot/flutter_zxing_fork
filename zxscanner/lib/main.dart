@@ -1,10 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_zxing/flutter_zxing.dart';
 import 'package:zxscanner/configs/constants.dart';
 import 'package:zxscanner/utils/db_service.dart';
 import 'package:zxscanner/utils/extensions.dart';
-import 'package:nb_utils/nb_utils.dart';
+import 'package:zxscanner/utils/shared_pref.dart';
 
 import 'configs/app_store.dart';
 import 'configs/app_theme.dart';
@@ -14,34 +16,10 @@ import 'utils/scroll_behavior.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _initializeAppStore();
+  await initializePrefs();
   await DbService.instance.initializeApp();
+  setZxingLogEnabled(kDebugMode);
   runApp(const MyApp());
-}
-
-_initializeAppStore() async {
-  await initialize();
-  final themeModeString = getStringAsync(
-    themeModePref,
-    defaultValue: appStore.themeMode.toString(),
-  );
-  await appStore.setThemeMode(
-    ThemeMode.values
-        .firstWhere((element) => element.toString() == themeModeString),
-  );
-  await appStore.setColorSchemeIndex(
-    getIntAsync(colorSchemeIndexPref, defaultValue: appStore.colorSchemeIndex),
-  );
-  await appStore.toggleSoundMode(
-    value: getBoolAsync(isSoundOnPref, defaultValue: appStore.isSoundOn),
-  );
-  await appStore.toggleVibrationMode(
-    value:
-        getBoolAsync(isVibrationOnPref, defaultValue: appStore.isVibrationOn),
-  );
-  await appStore.setLanguage(
-    getStringAsync(languagePref, defaultValue: appStore.selectedLanguage),
-  );
 }
 
 class MyApp extends StatefulWidget {

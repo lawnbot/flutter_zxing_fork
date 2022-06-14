@@ -17,7 +17,7 @@ Future<Uint8List> convertImage(CameraImage image) async {
     }
     return img.getBytes(format: imglib.Format.luminance);
   } catch (e) {
-    debugPrint(">>>>>>>>>>>> ERROR: $e");
+    debugPrint('>>>>>>>>>>>> ERROR: $e');
   }
   return Uint8List(0);
 }
@@ -33,21 +33,23 @@ imglib.Image convertBGRA8888(CameraImage image) {
 
 // ignore: unused_element
 imglib.Image convertYUV420(CameraImage image) {
-  var img = imglib.Image(image.width, image.height); // Create Image buffer
+  final imglib.Image img =
+      imglib.Image(image.width, image.height); // Create Image buffer
 
-  Plane plane = image.planes[0];
-  const int shift = (0xFF << 24);
+  final Plane plane = image.planes[0];
+  const int shift = 0xFF << 24;
 
   // Fill image buffer with plane[0] from YUV420_888
   for (int x = 0; x < image.width; x++) {
     for (int planeOffset = 0;
         planeOffset < image.height * image.width;
         planeOffset += image.width) {
-      final pixelColor = plane.bytes[planeOffset + x];
+      final int pixelColor = plane.bytes[planeOffset + x];
       // color: 0x FF  FF  FF  FF
       //           A   B   G   R
       // Calculate pixel color
-      var newVal = shift | (pixelColor << 16) | (pixelColor << 8) | pixelColor;
+      final int newVal =
+          shift | (pixelColor << 16) | (pixelColor << 8) | pixelColor;
 
       img.data[planeOffset + x] = newVal;
     }

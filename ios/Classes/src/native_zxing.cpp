@@ -9,6 +9,14 @@ using namespace ZXing;
 
 extern "C"
 {
+    bool logEnabled = false;
+
+    FUNCTION_ATTRIBUTE
+    void setLogEnabled(int enabled)
+    {
+        logEnabled = enabled;
+    }
+
     FUNCTION_ATTRIBUTE
     char const *version()
     {
@@ -16,7 +24,7 @@ extern "C"
     }
 
     FUNCTION_ATTRIBUTE
-    struct CodeResult readBarcode(char *bytes, int format, int width, int height, int cropWidth, int cropHeight, int logEnabled)
+    struct CodeResult readBarcode(char *bytes, int format, int width, int height, int cropWidth, int cropHeight)
     {
         long long start = get_now();
 
@@ -24,7 +32,7 @@ extern "C"
         auto *data = new uint8_t[length];
         memcpy(data, bytes, length);
 
-        BarcodeFormats formats = BarcodeFormat(format); // BarcodeFormat::Any;
+        BarcodeFormats formats = BarcodeFormat(format);
         DecodeHints hints = DecodeHints().setTryHarder(false).setTryRotate(true).setFormats(formats);
         ImageView image{data, width, height, ImageFormat::Lum};
         if (cropWidth > 0 && cropHeight > 0 && cropWidth < width && cropHeight < height)
@@ -37,10 +45,13 @@ extern "C"
         if (result.isValid())
         {
             code.isValid = result.isValid();
-            code.text = new char[result.text().length() + 1];
-            std::string text = std::string(result.text().begin(), result.text().end());
-            strcpy(code.text, text.c_str());
+
             code.format = Format(static_cast<int>(result.format()));
+
+            const wchar_t *resultText = result.text().c_str();
+            size_t size = (wcslen(resultText) + 1) * sizeof(wchar_t);
+            code.text = new char[size];
+            std::wcstombs(code.text, resultText, size);
         }
 
         int evalInMillis = static_cast<int>(get_now() - start);
@@ -52,7 +63,7 @@ extern "C"
     }
 
     FUNCTION_ATTRIBUTE
-    struct CodeResult* readBarcodes(char *bytes, int format, int width, int height, int cropWidth, int cropHeight, int logEnabled)
+    struct CodeResults readBarcodes(char *bytes, int format, int width, int height, int cropWidth, int cropHeight)
     {
         long long start = get_now();
 
@@ -60,7 +71,7 @@ extern "C"
         auto *data = new uint8_t[length];
         memcpy(data, bytes, length);
 
-        BarcodeFormats formats = BarcodeFormat(format); // BarcodeFormat::Any;
+        BarcodeFormats formats = BarcodeFormat(format);
         DecodeHints hints = DecodeHints().setTryHarder(false).setTryRotate(true).setFormats(formats);
         ImageView image{data, width, height, ImageFormat::Lum};
         if (cropWidth > 0 && cropHeight > 0 && cropWidth < width && cropHeight < height)
@@ -77,10 +88,14 @@ extern "C"
             if (result.isValid())
             {
                 code.isValid = result.isValid();
-                code.text = new char[result.text().length() + 1];
-                std::string text = std::string(result.text().begin(), result.text().end());
-                strcpy(code.text, text.c_str());
+
                 code.format = Format(static_cast<int>(result.format()));
+
+                const wchar_t *resultText = result.text().c_str();
+                size_t size = (wcslen(resultText) + 1) * sizeof(wchar_t);
+                code.text = new char[size];
+                std::wcstombs(code.text, resultText, size);
+                
                 codes[i] = code;
                 i++;
             }
@@ -91,18 +106,18 @@ extern "C"
         {
             platform_log("zxingRead: %d ms", evalInMillis);
         }
-        return codes;
+        return {i, codes};
     }
 
     FUNCTION_ATTRIBUTE
-    struct EncodeResult encodeBarcode(char *contents, int width, int height, int format, int margin, int eccLevel, int logEnabled)
+    struct EncodeResult encodeBarcode(char *contents, int width, int height, int format, int margin, int eccLevel)
     {
         long long start = get_now();
 
         struct EncodeResult result = {0, contents, Format(format), nullptr, 0, nullptr};
         try
         {
-            auto writer = MultiFormatWriter(BarcodeFormat(format)).setMargin(margin).setEccLevel(eccLevel);
+            auto writer = MultiFormatWriter(BarcodeFormat(format)).setMargin(margin).setEccLevel(eccLevel).setEncoding(CharacterSet::UTF8);
             auto bitMatrix = writer.encode(TextUtfEncoding::FromUtf8(std::string(contents)), width, height);
             result.data = ToMatrix<uint32_t>(bitMatrix).data();
             result.length = bitMatrix.width() * bitMatrix.height();
