@@ -28,9 +28,6 @@ packages:
       name: camera
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
-    version: "0.9.6"
-=======
     version: "0.9.8"
   camera_android:
     dependency: transitive
@@ -46,7 +43,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.7+1"
->>>>>>> upstream/main
   camera_platform_interface:
     dependency: transitive
     description:

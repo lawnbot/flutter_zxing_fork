@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_beep/flutter_beep.dart';
+
 
 import '../../generated_bindings.dart';
 import '../logic/zxing.dart';
@@ -164,7 +164,7 @@ class _ReaderWidgetState extends State<ReaderWidget>
         );
         if (result.isValidBool) {
           if (widget.beep) {
-            FlutterBeep.beep();
+          
           }
           widget.onScan(result);
           setState(() {});
